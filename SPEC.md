@@ -1,7 +1,7 @@
 # Compile Time - Project Specification
 
 ## Project Overview
-An interactive web application that parses JavaScript code and visualizes its Abstract Syntax Tree (AST), designed to teach parsing concepts through direct manipulation and exploration.
+An interactive web application that parses JavaScript and TypeScript code and visualizes its Abstract Syntax Tree (AST), designed to teach parsing concepts through direct manipulation and exploration.
 
 **Repository**: [https://github.com/rpasetes/compile-time](https://github.com/rpasetes/compile-time)
 
@@ -73,12 +73,13 @@ Using [CodeRabbit](https://docs.coderabbit.ai/overview/introduction) for automat
 ### Minimum Viable Product
 The simplest version that teaches the core concept:
 
-1. **Input**: Text area for JavaScript code
-2. **Output**: Visual tree representation of the resulting AST
-3. **Interaction**: Bidirectional highlighting
+1. **Input**: Text area for JavaScript/TypeScript code
+2. **Language Toggle**: Switch between JavaScript and TypeScript parsing modes
+3. **Output**: Visual tree representation of the resulting AST
+4. **Interaction**: Bidirectional highlighting
    - Click source code → highlight corresponding AST node
    - Click AST node → highlight corresponding source code
-4. **Parser**: Use existing parser (Acorn recommended)
+5. **Parser**: Use TypeScript's parser (handles both JS and TS)
 
 That's it. No bells, no whistles. Just the core loop that makes the concept click.
 
@@ -88,7 +89,16 @@ This already demonstrates the fundamental insight: your code isn't just text, it
 ## Technical Stack
 
 ### Required
-- **Parser**: [Acorn](https://github.com/acornjs/acorn) (simple, fast, good errors)
+- **Parser**: TypeScript's parser (`typescript` package)
+  - Handles both JavaScript and TypeScript
+  - Official parser with comprehensive support
+  - Larger bundle (~10MB) but necessary for TS support
+  - Produces TypeScript AST (superset of ESTree)
+- **Language**: TypeScript
+  - Modern, relevant to 2025 - this is what people actually use
+  - Users can paste real production code they write or generate
+  - Type safety helps with AST node handling
+  - Dogfooding bonus: visualize the same language we write in
 - **Framework**: React (familiar, handles dynamic updates well)
 - **Tree Visualization**: Start with pure CSS/HTML using flexbox or grid
 - **Hosting**: Vercel, Netlify, or similar
@@ -97,22 +107,26 @@ This already demonstrates the fundamental insight: your code isn't just text, it
 - **Tree Library**: react-d3-tree or similar (only if you need pan/zoom/complex layouts)
 - **Styling**: Tailwind or whatever's comfortable
 
-### Why Acorn?
-- Small, focused API
-- Excellent error messages
-- Produces standard ESTree format
-- Fast enough for real-time parsing
-- No compilation step needed
+### Parser Strategy: JavaScript/TypeScript Toggle
+- **Default mode**: JavaScript (simpler for teaching basics)
+- **TypeScript mode**: Show how type annotations appear in AST
+- **Benefits**:
+  - Educational simplicity for beginners (JS mode)
+  - Full feature parity with modern development (TS mode)
+  - Users can visualize real production code they write or generate
+  - Demonstrates that types are "just extra nodes"
+  - Dogfooding bonus: works with our own source code too
 
 ## User Experience Flow
 
 ### Basic Flow
 1. User opens page
 2. Sees pre-populated example: `const add = (a, b) => a + b`
-3. Tree is already rendered
+3. Tree is already rendered (JavaScript mode by default)
 4. User clicks on `add` in the code → corresponding Identifier node highlights
 5. User modifies code → tree updates in real-time
-6. Understanding emerges through play
+6. User can toggle TypeScript mode to see type annotations in the tree
+7. Understanding emerges through play
 
 ### Progressive Complexity Examples
 Provide preset examples that build understanding:
@@ -186,17 +200,18 @@ The tool is embedded *within* the essay, not separate from it. Structure:
 ## Implementation Phases
 
 ### Phase 0: Prototype
-1. Get Acorn parsing and console.logging ASTs
+1. Get TypeScript parser working and console.logging ASTs
 2. Hand-write HTML/CSS for rendering ONE specific tree
 3. Figure out what "feels good" visually
 4. Don't generalize until you know what you're generalizing
 
 ### Phase 1: MVP
 1. Input text area with real-time parsing
-2. Basic tree rendering (type + essential info per node)
-3. Click code → highlight node
-4. Click node → highlight code
-5. Handle parse errors gracefully (show error, don't crash)
+2. JavaScript/TypeScript mode toggle
+3. Basic tree rendering (type + essential info per node)
+4. Click code → highlight node
+5. Click node → highlight code
+6. Handle parse errors gracefully (show error, don't crash)
 
 ### Phase 2: Polish
 1. Add preset examples with descriptions
@@ -223,6 +238,7 @@ The tool is embedded *within* the essay, not separate from it. Structure:
 - **Side-by-side comparison**: Two code snippets, diff their ASTs
 - **Filter view**: "Show only function declarations" or "Show only identifiers"
 - **Search**: Find all nodes of a specific type
+- **Type annotation highlighting**: In TS mode, visually distinguish type nodes from runtime nodes
 
 ### Tier 3: Real Tool Territory
 - **Parse error visualization**: Show partial tree + where parsing failed
@@ -240,7 +256,8 @@ The tool is embedded *within* the essay, not separate from it. Structure:
 ## Success Metrics
 
 ### For MVP
-- [ ] Can paste any valid JS code and see a tree
+- [ ] Can paste any valid JS or TS code and see a tree
+- [ ] Language toggle switches between JS and TS parsing modes
 - [ ] Clicking creates bidirectional highlights
 - [ ] Updates in real-time as user types
 - [ ] Handles parse errors without breaking
@@ -255,7 +272,7 @@ The tool is embedded *within* the essay, not separate from it. Structure:
 
 ### Performance
 - Parse on every keystroke (with debounce if needed)
-- Target <100ms parse time for typical input (Acorn handles this easily)
+- Target <100ms parse time for typical input (TypeScript parser handles this well)
 - Tree rendering should be <50ms for trees up to 100 nodes
 
 ### Browser Support
@@ -287,8 +304,8 @@ The tool is embedded *within* the essay, not separate from it. Structure:
 ## Non-Goals
 
 ### Explicitly Out of Scope
-- Writing a parser from scratch (use Acorn)
-- Supporting multiple languages (JS only for MVP)
+- Writing a parser from scratch (use TypeScript's parser)
+- Supporting languages beyond JS/TS (just JavaScript and TypeScript for MVP)
 - Being a full IDE replacement (just visualization + learning)
 - AST transformation/manipulation (just visualization for MVP)
 - Being exhaustively comprehensive about every edge case
@@ -298,9 +315,9 @@ The tool is embedded *within* the essay, not separate from it. Structure:
 ### Getting Started
 ```bash
 # Setup
-npm create vite@latest compile-time -- --template react
+npm create vite@latest compile-time -- --template react-ts
 cd compile-time
-npm install acorn
+npm install typescript
 
 # Initialize Beads for issue tracking
 bd init
@@ -313,14 +330,14 @@ npm run dev
 ```text
 src/
   components/
-    CodeEditor.jsx       # Input textarea
-    ASTTree.jsx          # Tree visualization
-    ASTNode.jsx          # Individual node component
+    CodeEditor.tsx       # Input textarea with language toggle
+    ASTTree.tsx          # Tree visualization
+    ASTNode.tsx          # Individual node component
   utils/
-    parser.js            # Acorn wrapper
-    highlighter.js       # Bidirectional highlight logic
-  App.jsx               # Main component
-  examples.js           # Preset code examples
+    parser.ts            # TypeScript parser wrapper (handles JS & TS)
+    highlighter.ts       # Bidirectional highlight logic
+  App.tsx               # Main component
+  examples.ts           # Preset code examples (both JS and TS)
 
 .beads/
   issues.jsonl          # Issue tracking (committed to git)
@@ -363,9 +380,10 @@ Before finishing work:
 
 ## Resources
 
-### Acorn Documentation
-- [Acorn GitHub](https://github.com/acornjs/acorn)
-- [ESTree Spec](https://github.com/estree/estree) (AST format)
+### Parser Documentation
+- [TypeScript Compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API)
+- [ESTree Spec](https://github.com/estree/estree) (Base AST format)
+- [TypeScript AST Viewer](https://ts-ast-viewer.com/) (reference implementation)
 
 ### AST Exploration
 - [AST Explorer](https://astexplorer.net/) (reference implementation)
