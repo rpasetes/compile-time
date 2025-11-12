@@ -3,7 +3,7 @@
 ## Project Overview
 An interactive web application that parses JavaScript code and visualizes its Abstract Syntax Tree (AST), designed to teach parsing concepts through direct manipulation and exploration.
 
-**Repository**: https://github.com/rpasetes/compile-time
+**Repository**: [https://github.com/rpasetes/compile-time](https://github.com/rpasetes/compile-time)
 
 ## Core Concept
 Transform the abstract concept of parsing into something visceral: paste code, see the tree, understand that code is structure. The tool exists to make parsing *feel* concrete rather than mystical.
@@ -21,15 +21,15 @@ Using [Beads](https://github.com/steveyegge/beads) - a graph-based issue tracker
 - Four dependency types: blocks, related, parent-child, discovered-from
 
 **Setup (one-time):**
-```bash
+````bash
 cd compile-time
 bd init
 # Say yes to git hooks (recommended)
 # Say yes to merge driver (recommended)
-```
+````
 
 **Agent workflow:**
-```bash
+````bash
 # Find what's ready to work on
 bd ready --json
 
@@ -44,7 +44,7 @@ bd update <issue-id> --status in_progress
 
 # Complete work
 bd close <issue-id> --reason "Implemented"
-```
+````
 
 **Key commands:**
 - `bd ready` - Show issues with no blockers
@@ -161,7 +161,7 @@ Keep it subtle - the structure should be apparent from layout, not just color.
 
 ### Structure
 The tool is embedded *within* the essay, not separate from it. Structure:
-```
+```text
 [ Introduction: "When you write code, what does the engine see?" ]
 [ Tool instance #1: Simple example with explanation below ]
 [ Conceptual explanation ]
@@ -265,7 +265,7 @@ The tool is embedded *within* the essay, not separate from it. Structure:
 
 ### Accessibility
 - Keyboard navigation through the tree
-- Screen reader friendly node descriptions
+- Screen-reader friendly node descriptions
 - High contrast mode support
 - Focus indicators on interactive elements
 
@@ -310,7 +310,7 @@ npm run dev
 ```
 
 ### Core Files Structure
-```
+```text
 src/
   components/
     CodeEditor.jsx       # Input textarea
@@ -347,19 +347,19 @@ Before finishing work:
    - Create issues for discovered bugs, TODOs, follow-up tasks
    - Close completed issues and update status for in-progress work
 2. **Sync the issue tracker**
-```bash
+````bash
    bd sync           # Flush pending changes
    git add .beads/issues.jsonl
    git commit -m "Update issue tracker"
    git push
-```
+````
 3. **Verify clean state**
    - All changes committed and pushed
    - No untracked files
 4. **Choose next work**
-```bash
+````bash
    bd ready --json   # See what's ready for next session
-```
+````
 
 ## Resources
 
