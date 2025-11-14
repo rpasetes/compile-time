@@ -1,3 +1,8 @@
+import { useEffect, useRef } from 'react';
+import { EditorView, basicSetup } from 'codemirror';
+import { EditorState } from '@codemirror/state';
+import { javascript } from '@codemirror/lang-javascript';
+import { oneDark } from '@codemirror/theme-one-dark';
 import { LanguageMode } from '../utils/parser';
 
 interface CodeEditorProps {
@@ -19,6 +24,56 @@ interface CodeEditorProps {
  * That's what our parser does when we pass it to parseCode().
  */
 export function CodeEditor({ value, onChange, mode, onModeChange }: CodeEditorProps) {
+  const editorRef = useRef<HTMLDivElement>(null);
+  const viewRef = useRef<EditorView | null>(null);
+
+  useEffect(() => {
+    if (!editorRef.current) return;
+
+    const startState = EditorState.create({
+      doc: value,
+      extensions: [
+        basicSetup,
+        javascript({ typescript: mode === 'typescript' }),
+        oneDark,
+        EditorView.updateListener.of((update) => {
+          if (update.docChanged) {
+            const newValue = update.state.doc.toString();
+            onChange(newValue);
+          }
+        }),
+      ],
+    });
+
+    const view = new EditorView({
+      state: startState,
+      parent: editorRef.current,
+    });
+
+    viewRef.current = view;
+
+    return () => {
+      view.destroy();
+      viewRef.current = null;
+    };
+  }, [mode]); // Recreate editor when mode changes
+
+  // Update editor content when value prop changes externally
+  useEffect(() => {
+    if (viewRef.current) {
+      const currentValue = viewRef.current.state.doc.toString();
+      if (currentValue !== value) {
+        viewRef.current.dispatch({
+          changes: {
+            from: 0,
+            to: currentValue.length,
+            insert: value,
+          },
+        });
+      }
+    }
+  }, [value]);
+
   return (
     <div style={{
       display: 'flex',
@@ -60,25 +115,16 @@ export function CodeEditor({ value, onChange, mode, onModeChange }: CodeEditorPr
           </button>
         </div>
       </div>
-      <textarea
-        id="code-input"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        spellCheck={false}
+      <div
+        ref={editorRef}
         style={{
           width: '100%',
           flex: 1,
           minHeight: '200px',
-          fontFamily: 'monospace',
-          fontSize: '14px',
-          padding: '0.75rem',
-          backgroundColor: '#1a1a1a',
-          color: '#e0e0e0',
           border: '1px solid #444',
           borderRadius: '4px',
-          resize: 'none',
+          overflow: 'auto',
         }}
-        placeholder="Enter JavaScript or TypeScript code..."
       />
     </div>
   );
