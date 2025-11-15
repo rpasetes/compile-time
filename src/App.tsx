@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { parseCode, LanguageMode } from './utils/parser';
+import { parseCode } from './utils/parser';
 import { CodeEditor } from './components/CodeEditor';
 import { ASTTree } from './components/ASTTree';
 
@@ -20,10 +20,9 @@ import { ASTTree } from './components/ASTTree';
  */
 function App() {
   const [sourceCode, setSourceCode] = useState('const add = (a, b) => a + b');
-  const [languageMode, setLanguageMode] = useState<LanguageMode>('javascript');
 
-  // Parse the code whenever it changes
-  const parseResult = parseCode(sourceCode, languageMode);
+  // Parse the code whenever it changes (always using TypeScript mode)
+  const parseResult = parseCode(sourceCode);
 
   return (
     <div style={{
@@ -62,8 +61,6 @@ function App() {
           <CodeEditor
             value={sourceCode}
             onChange={setSourceCode}
-            mode={languageMode}
-            onModeChange={setLanguageMode}
           />
         </div>
 
