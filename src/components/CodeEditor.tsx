@@ -3,13 +3,10 @@ import { EditorView, basicSetup } from 'codemirror';
 import { EditorState } from '@codemirror/state';
 import { javascript } from '@codemirror/lang-javascript';
 import { oneDark } from '@codemirror/theme-one-dark';
-import { LanguageMode } from '../utils/parser';
 
 interface CodeEditorProps {
   value: string;
   onChange: (value: string) => void;
-  mode: LanguageMode;
-  onModeChange: (mode: LanguageMode) => void;
 }
 
 /**
@@ -23,7 +20,7 @@ interface CodeEditorProps {
  * The compiler's first job is to take this text and make sense of it.
  * That's what our parser does when we pass it to parseCode().
  */
-export function CodeEditor({ value, onChange, mode, onModeChange }: CodeEditorProps) {
+export function CodeEditor({ value, onChange }: CodeEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
 
@@ -34,7 +31,7 @@ export function CodeEditor({ value, onChange, mode, onModeChange }: CodeEditorPr
       doc: value,
       extensions: [
         basicSetup,
-        javascript({ typescript: mode === 'typescript' }),
+        javascript({ typescript: true }), // TypeScript mode handles both JS and TS
         oneDark,
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
@@ -56,7 +53,7 @@ export function CodeEditor({ value, onChange, mode, onModeChange }: CodeEditorPr
       view.destroy();
       viewRef.current = null;
     };
-  }, [mode]); // Recreate editor when mode changes
+  }, []); // Only create editor once
 
   // Update editor content when value prop changes externally
   useEffect(() => {
@@ -83,37 +80,9 @@ export function CodeEditor({ value, onChange, mode, onModeChange }: CodeEditorPr
       flex: 1,
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <label htmlFor="code-input" style={{ fontWeight: 'bold' }}>
+        <label style={{ fontWeight: 'bold' }}>
           Source Code:
         </label>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button
-            onClick={() => onModeChange('javascript')}
-            style={{
-              padding: '0.25rem 0.75rem',
-              backgroundColor: mode === 'javascript' ? '#646cff' : '#333',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
-            JavaScript
-          </button>
-          <button
-            onClick={() => onModeChange('typescript')}
-            style={{
-              padding: '0.25rem 0.75rem',
-              backgroundColor: mode === 'typescript' ? '#646cff' : '#333',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
-            TypeScript
-          </button>
-        </div>
       </div>
       <div
         ref={editorRef}
