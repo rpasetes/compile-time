@@ -30,10 +30,18 @@ export function BlobVisualization({ ast }: BlobVisualizationProps) {
     // Sum values (required before pack)
     root.sum(d => d.value || 1);
 
-    // Create pack layout
+    // Function to calculate font size for a node
+    const getFontSize = (depth: number) => {
+      const baseSize = 40 - (depth * 3); // 2x the original max (was 20)
+      const minSize = 24; // 2x the original min (was 12)
+      return Math.max(baseSize, minSize);
+    };
+
+    // Use font size as padding to visually tie labels to blobs
+    const maxFontSize = getFontSize(0);
     const pack = d3.pack<HierarchyNode>()
       .size([width - margin * 2, height - margin * 2])
-      .padding(3);
+      .padding(maxFontSize); // Padding matches font size
 
     // Apply pack layout
     pack(root);
@@ -83,24 +91,49 @@ export function BlobVisualization({ ast }: BlobVisualizationProps) {
           .attr('stroke-width', 1.5);
       });
 
-    // Add labels (only for nodes with enough space)
-    node.append('text')
-      .attr('text-anchor', 'middle')
-      .attr('dy', '0.3em')
-      .style('font-size', d => `${Math.min(d.r / 3, 14)}px`)
-      .style('fill', '#fff')
-      .style('pointer-events', 'none')
-      .style('font-family', 'monospace')
-      .style('font-weight', 'bold')
-      .text(d => {
-        // Only show label if circle is large enough
-        const label = d.data.name;
-        if (d.r > 20) {
-          // Truncate long labels
-          return label.length > 20 ? label.slice(0, 18) + '...' : label;
-        }
-        return '';
-      });
+    // Create defs for curved text paths
+    const defs = svg.append('defs');
+
+    // Add curved text labels along the top arc of each circle
+    nodes.forEach((d, i) => {
+      const label = d.data.name;
+      const fontSize = getFontSize(d.depth);
+
+      // Only show label if circle is large enough
+      if (d.r > 30) {
+        // Create a circular path for the text to follow
+        const pathId = `circle-path-${i}`;
+
+        // Create arc path along the top of the circle
+        // Start at -90 degrees (top), arc radius slightly inside the circle
+        const arcRadius = d.r - 5;
+
+        defs.append('path')
+          .attr('id', pathId)
+          .attr('d', `
+            M ${d.x - arcRadius}, ${d.y}
+            A ${arcRadius}, ${arcRadius} 0 0 1 ${d.x + arcRadius}, ${d.y}
+          `);
+
+        // Truncate long labels based on circle circumference
+        const maxChars = Math.floor((arcRadius * Math.PI) / (fontSize * 0.6));
+        const truncatedLabel = label.length > maxChars ? label.slice(0, maxChars - 2) + '...' : label;
+
+        // Add text element with textPath
+        g.append('text')
+          .style('font-size', `${fontSize}px`)
+          .style('fill', '#fff')
+          .style('pointer-events', 'none')
+          .style('font-family', 'monospace')
+          .style('font-weight', 'bold')
+          .style('text-shadow', '0 0 3px rgba(0,0,0,0.8), 0 0 6px rgba(0,0,0,0.6)')
+          .append('textPath')
+          .attr('href', `#${pathId}`)
+          .attr('startOffset', '50%')
+          .attr('text-anchor', 'middle')
+          .text(truncatedLabel);
+      }
+    });
 
     // Add tooltips on hover
     node.append('title')
