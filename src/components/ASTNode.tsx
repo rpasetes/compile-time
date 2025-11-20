@@ -10,8 +10,8 @@ interface ASTNodeProps {
 /**
  * ASTNode Component
  *
- * COMPILER INSIGHT: What's in a Node?
- * =====================================
+ * PARSING INSIGHT: What's in a Node?
+ * ===================================
  * Each AST node represents a "syntactic construct" - a piece of grammar.
  *
  * Every node has:
@@ -23,6 +23,10 @@ interface ASTNodeProps {
  * - left child: Identifier "x"
  * - operator: PlusToken "+"
  * - right child: NumericLiteral "5"
+ *
+ * This structure is why refactoring tools can rename "x" across your entire
+ * codebase without accidentally changing strings that contain "x" or comments
+ * that mention "x". The AST knows which "x" is the variable you care about.
  */
 export function ASTNode({ node, onClick, isHighlighted }: ASTNodeProps) {
   const typeName = getNodeTypeName(node.kind);

@@ -2,21 +2,23 @@ BEFORE ANYTHING ELSE: run 'bd onboard' and follow the instructions
 
 ---
 
-# Claude Instructions for Compile Time
+# Claude Instructions for Arbor Parser
 
 ## Project Context
-This is **Compile Time** - an interactive AST visualizer that teaches parsing concepts through direct manipulation. Users paste JavaScript or TypeScript code and see the tree structure in real-time.
+This is **Arbor Parser** - an interactive AST visualizer that teaches parsing concepts through direct manipulation. Users paste JavaScript or TypeScript code and see the tree structure in real-time.
 
 **Key insight**: Make parsing feel concrete rather than mystical.
+
+**Project History**: Originally named "Compile Time" and positioned as a compiler education tool, but rebranded in November 2025 to "Arbor Parser" with clearer focus on parsing specifically (the botanical metaphor fits parse trees perfectly).
 
 ## Core Principles
 
 ### 1. MVP-First Mindset
 The MVP is deliberately minimal:
-- Code input (textarea)
+- Code input (CodeMirror editor)
 - AST tree visualization
-- Bidirectional highlighting (code ↔ tree)
-- JS/TS toggle
+- Tree/Rings toggle for different visualization modes
+- TypeScript parser (handles both JS and TS)
 
 **Do not add features beyond MVP scope unless explicitly requested.** Every feature should justify its existence by making the core concept clearer.
 
@@ -28,6 +30,12 @@ Dogfooding (visualizing our own source) is a nice bonus, but the primary value i
 ### 3. Teaching Through Exploration
 The tool teaches by letting users play, not by explaining exhaustively. Visual clarity and interaction are more important than comprehensive documentation within the tool.
 
+### 4. Focus on Parsing, Not Compilation
+This tool is NOT teaching compilation end-to-end. We use TypeScript's parser (we don't build a parser). The educational value is in:
+- Understanding what parsing is (lexical + syntactic analysis)
+- Seeing how code becomes structured data (ASTs)
+- Learning why this matters for developer tools (linters, formatters, refactoring, transpilers, IDEs)
+
 ## Technical Stack
 
 ### Core Dependencies
@@ -35,28 +43,19 @@ The tool teaches by letting users play, not by explaining exhaustively. Visual c
 - **TypeScript Parser** (`typescript` package)
   - Parses both JavaScript and TypeScript
   - Use `ts.createSourceFile()` for parsing
-  - `ScriptKind.JS` for JavaScript mode
-  - `ScriptKind.TS` or `ScriptKind.TSX` for TypeScript mode
+  - We always use `ScriptKind.TS` (it's a superset, handles plain JS too)
+- **CodeMirror 6** - Modern code editor with syntax highlighting
+- **D3** - Used for radial "rings" visualization
 
 ### Parsing Strategy
 ```typescript
 import * as ts from 'typescript';
 
-// JavaScript mode
-const jsAST = ts.createSourceFile(
-  'temp.js',
-  sourceCode,
-  ts.ScriptTarget.Latest,
-  true,
-  ts.ScriptKind.JS
-);
-
-// TypeScript mode
-const tsAST = ts.createSourceFile(
+const ast = ts.createSourceFile(
   'temp.ts',
   sourceCode,
   ts.ScriptTarget.Latest,
-  true,
+  true, // setParentNodes
   ts.ScriptKind.TS
 );
 ```
@@ -89,7 +88,7 @@ bd close <issue-id> --reason "Implemented"
 ### Git Workflow & Pull Requests
 
 **Branch Strategy:**
-- Create feature branches with encoded intent (e.g., `feature/ast-visualization`, `fix/parse-errors`, `refactor/tree-rendering`)
+- Create feature branches with encoded intent (e.g., `feature/ast-visualization`, `fix/parse-errors`, `refactor/rebrand-arbor-parser`)
 - Branch name should convey the app-level change being made
 
 **Git Best Practices:**
@@ -143,47 +142,58 @@ Before finishing:
 ```
 src/
   components/
-    CodeEditor.tsx       # Input + language toggle
-    ASTTree.tsx          # Tree container
-    ASTNode.tsx          # Individual node rendering
+    CodeEditor.tsx           # CodeMirror editor
+    ASTTree.tsx              # Tree container + recursive TreeNode
+    ASTNode.tsx              # Individual node rendering
+    BlobVisualization.tsx    # Radial "rings" view
+    SegmentedControl.tsx     # Tree/Rings toggle
   utils/
-    parser.ts            # TypeScript parser wrapper
-    highlighter.ts       # Highlight coordination
-  App.tsx               # Main component
-  examples.ts           # Preset examples
+    parser.ts                # TypeScript parser wrapper
+  App.tsx                   # Main component
+docs/
+  NOV20-WHY-PARSING-MATTERS.md  # Comprehensive parsing research
 ```
 
 ### Component Patterns
 - **Functional components** with hooks
 - **Props interfaces** explicitly defined
 - **Keep components small** - single responsibility
-- **CSS modules or Tailwind** (decide based on user preference)
+- **Inline styles** currently used (no CSS modules/Tailwind yet)
 
 ### AST Node Handling
 TypeScript AST nodes are complex. For display, extract:
 - `node.kind` (the SyntaxKind enum value)
-- Key properties (e.g., `name` for identifiers, `text` for literals)
-- Position info (`node.pos`, `node.end`) for highlighting
+- Key properties (e.g., `text` for identifiers/literals)
+- Position info (`node.pos`, `node.end`) for potential highlighting
 
 Don't try to show every property - overwhelming. Show the essential structure.
 
 ### Error Handling
 - Parse errors should be caught and displayed gracefully
-- Don't crash the app on invalid input
-- Show error message + position if available
-- Consider showing partial AST if parser recovers
+- TypeScript's parser is fault-tolerant (returns partial AST even with errors)
+- Show error message if parsing completely fails
+- Currently we always return the AST regardless of errors
+
+## Code Comments Philosophy
+
+All code comments use **"PARSING INSIGHT #N"** format with detailed explanations:
+- Explain what the code does in parsing terms
+- Connect to real-world developer tools (ESLint, Prettier, VS Code, etc.)
+- Use concrete examples (e.g., "const x = 5" → tokens)
+- Focus on "why this matters" for the user's understanding
+
+See existing comments in `src/utils/parser.ts`, `src/App.tsx`, and component files for the style.
 
 ## Testing Strategy
 - **Manual testing** during development
-- Test with examples from SPEC.md (literal, binary op, precedence, function)
+- Test with real-world JavaScript and TypeScript code
 - Test error cases (syntax errors, incomplete code)
-- Test both JS and TS modes
 - Performance: parsing should feel instant (<100ms)
 
 ## Performance Considerations
-- **Debounce parsing** if needed (test first - might not be necessary)
-- **Lazy rendering** for very deep trees (only if needed)
-- **Memoization** for expensive renders
+- Parsing is fast (TypeScript's parser is highly optimized)
+- Tree rendering may need optimization for very deep trees in the future
+- Radial visualization uses D3 (generally performant)
 - Target: <100ms parse + <50ms render for typical input
 
 ## Accessibility
@@ -195,9 +205,10 @@ Don't try to show every property - overwhelming. Show the essential structure.
 ## What NOT to Do
 - Don't write a parser from scratch (use TypeScript's parser)
 - Don't add features speculatively beyond MVP
-- Don't over-engineer the tree layout initially (CSS flex/grid is fine)
+- Don't over-engineer layouts
 - Don't create markdown documentation files unless explicitly asked
 - Don't use emojis unless explicitly requested
+- Don't use terms like "compiler" when we mean "parser"
 
 ## Decision-Making Framework
 
@@ -209,32 +220,57 @@ When facing choices, bias toward:
 
 When unsure, ask the user rather than assuming.
 
-## Key Teaching Moments (from SPEC)
+## Key Teaching Moments
 The tool should make these insights clear through interaction:
-1. **Code is not text** - it's structured data
+1. **Code is not text** - it's structured data (ASTs)
 2. **Tree shape = meaning** - structure encodes semantics
-3. **Recursive nature** - expressions contain expressions
-4. **Why this matters** - foundation for linters, transpilers, minifiers
+3. **Recursive nature** - expressions contain expressions contain expressions
+4. **Why this matters** - foundation for every developer tool you use daily
 
-## Current State
-- Repository initialized with Beads setup
-- Specification updated for TypeScript support
-- On branch: `spec/typescript-support`
-- Ready to build application code
+## Current State (November 2025)
 
-## Next Steps (User will decide)
-1. Bootstrap Vite + React + TypeScript
-2. Install TypeScript parser
-3. Create basic project structure
-4. Implement parser wrapper (Phase 0: prototype)
-5. Build components (Phase 1: MVP)
+✅ **MVP Complete:**
+- CodeMirror 6 editor with TypeScript/JavaScript syntax highlighting
+- Tree visualization with recursive rendering
+- Radial "rings" visualization (experimental D3 implementation)
+- Split-pane layout (50/50) with proper viewport handling
+- Tree/Rings segmented control toggle
+- Real-time parsing as you type
+- Educational comments throughout codebase
+
+📝 **Recent Rebrand:**
+- Changed from "Compile Time" → "Arbor Parser"
+- Updated all references (package.json, HTML title, App header)
+- Changed all code comments from "COMPILER INSIGHT" to "PARSING INSIGHT"
+- Enhanced comments with detailed parsing explanations
+- Created comprehensive research doc: `docs/NOV20-WHY-PARSING-MATTERS.md`
+- Branch: `refactor/rebrand-arbor-parser` (pending merge to main)
+
+🎯 **What's Working:**
+- TypeScript parser integration (`ts.createSourceFile`)
+- AST traversal with `ts.forEachChild`
+- Node type display using `ts.SyntaxKind` enum
+- Literal/identifier value display
+- Fixed viewport sizing (no more overflow issues)
+
+## Potential Future Work (Not Prioritized)
+
+These are ideas mentioned but NOT current priorities:
+- Bidirectional highlighting (click node → highlight code, click code → highlight node)
+- Preset example snippets
+- Better error recovery UI
+- Search/filter nodes in tree
+- Export AST as JSON
+- Node detail panel showing all properties
+
+**Do not implement these unless explicitly requested.**
 
 ## Resources
 - [TypeScript Compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API)
 - [TS AST Viewer](https://ts-ast-viewer.com/) - reference for exploring TS ASTs
 - [Beads Documentation](https://github.com/steveyegge/beads)
-- [SPEC.md](./SPEC.md) - Full project specification
+- [docs/NOV20-WHY-PARSING-MATTERS.md](./docs/NOV20-WHY-PARSING-MATTERS.md) - Comprehensive parsing research
 
 ---
 
-**Remember**: This tool exists to make parsing feel concrete, not to be a comprehensive IDE. Every decision should serve the learning experience.
+**Remember**: This tool exists to make parsing feel concrete, not to be a comprehensive IDE or compiler course. Every decision should serve the learning experience. The focus is on **parsing** specifically - how code text becomes structured trees, and why that matters for the tools developers use every day.

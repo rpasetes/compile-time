@@ -8,17 +8,28 @@ import { SegmentedControl } from "./components/SegmentedControl";
 /**
  * Main App Component
  *
- * COMPILER INSIGHT: The Complete Pipeline
- * =========================================
- * This app demonstrates the first phase of compilation:
+ * PARSING INSIGHT: How Parsers Read Code
+ * =======================================
+ * Parsers transform text into structured trees (ASTs) through two phases:
  *
- * 1. SOURCE CODE (text) → what humans write
- * 2. LEXICAL ANALYSIS → break into tokens
- * 3. SYNTACTIC ANALYSIS → build tree structure (AST)
- * 4. [Future phases: semantic analysis, optimization, code generation]
+ * 1. LEXICAL ANALYSIS (Tokenization)
+ *    "const x = 5" → [CONST, IDENTIFIER, EQUALS, NUMBER]
+ *    Breaking code into smallest meaningful units
  *
- * We're showing steps 1-3. This is what every compiler does first,
- * whether it's JavaScript, TypeScript, Python, Rust, or C++.
+ * 2. SYNTACTIC ANALYSIS (Tree Building)
+ *    Tokens → VariableStatement tree with nested expression nodes
+ *    Capturing the semantic relationships and nesting structure
+ *
+ * Why this matters: Every developer tool operates on ASTs, not text.
+ *
+ * - Syntax highlighters: Use tokens to colorize keywords, strings, operators
+ * - Linters (ESLint): Traverse trees to find patterns that violate rules
+ * - Formatters (Prettier): Parse → discard formatting → regenerate with consistency
+ * - Refactoring tools: Find all references to a symbol across entire codebases
+ * - Transpilers (Babel): Transform tree nodes to generate different languages
+ * - IDEs: Parse in real-time for autocomplete, navigation, type checking
+ *
+ * This visualizer shows you what parsers see: the hidden structure beneath your code.
  */
 function App() {
   const [sourceCode, setSourceCode] = useState("const x = 1 + 2");
@@ -44,12 +55,12 @@ function App() {
         }}
       >
         <h1 style={{ fontSize: "2.5rem", marginBottom: "0.5rem", margin: 0 }}>
-          Compile Time
+          Arbor Parser
         </h1>
         <p
           style={{ color: "#aaa", fontSize: "1.1rem", margin: "0.5rem 0 0 0" }}
         >
-          Watch your code transform into a tree. This is what the engine sees.
+          See how parsers read your code. Every syntax tree, visualized.
         </p>
       </div>
 

@@ -17,7 +17,7 @@ export interface ParseError {
  *
  * PARSING INSIGHT #1: Two-Phase Process
  * ==============================================
- * When you write code, the compiler does two main things:
+ * When you write code, the parser does two main things:
  * 1. LEXICAL ANALYSIS (tokenization): "const x = 5" → [CONST, IDENTIFIER, EQUALS, NUMBER]
  * 2. SYNTACTIC ANALYSIS (parsing): tokens → tree structure
  *
@@ -46,8 +46,14 @@ export function parseCode(
     /**
      * PARSING INSIGHT #3: Parser Configuration
      * ==============================================
-     * We always use TypeScript mode since it's a superset of JavaScript.
-     * This means it can parse both regular JS and TS with type annotations.
+     * We use TypeScript's parser because it's a superset of JavaScript.
+     * This means it handles both regular JS and TS with type annotations.
+     *
+     * Why TypeScript's parser is special:
+     * - Used by VS Code for autocomplete, navigation, refactoring
+     * - Used by ESLint via @typescript-eslint/parser for linting TypeScript
+     * - Designed to parse INCOMPLETE code (critical for IDE features)
+     * - Fault-tolerant: returns partial AST even with syntax errors
      *
      * createSourceFile parameters:
      * 1. fileName: Just for error messages (not actually reading a file)
@@ -71,8 +77,16 @@ export function parseCode(
      * as it can even with syntax errors. This is crucial for IDEs that need
      * to provide completions even when your code isn't perfect yet.
      *
-     * For the MVP, we'll skip detailed error checking and just return the AST.
-     * If parsing fails catastrophically, the try-catch will handle it.
+     * Example: If you type "const x = " and pause, the parser returns:
+     * - VariableDeclaration node for "x"
+     * - Missing initializer (marked as error)
+     * - But enough structure for autocomplete to suggest values
+     *
+     * This is why VS Code can offer suggestions mid-typing. The parser works
+     * with incomplete code, returning partial ASTs that tools can reason about.
+     *
+     * For our visualizer, we return the full AST regardless of errors, letting
+     * you see how the parser interprets even malformed code.
      */
 
     return {
@@ -97,11 +111,16 @@ export function parseCode(
  * SyntaxKind values!
  *
  * Examples:
- * - SyntaxKind.Identifier = 80
- * - SyntaxKind.BinaryExpression = 226
- * - SyntaxKind.FunctionDeclaration = 261
+ * - SyntaxKind.Identifier = 80 (variable/function names)
+ * - SyntaxKind.BinaryExpression = 226 (x + y, a === b, etc.)
+ * - SyntaxKind.FunctionDeclaration = 261 (function definitions)
  *
- * This function converts the number back to a readable string.
+ * These SyntaxKind enums are what tools match against:
+ * - ESLint rule: "When you see a VariableDeclaration, check if it's used"
+ * - Prettier: "When you see an ArrowFunctionExpression, format it consistently"
+ * - Refactoring: "Find all Identifier nodes with name 'oldName', rename to 'newName'"
+ *
+ * This function converts the number back to a readable string for display.
  */
 export function getNodeTypeName(kind: ts.SyntaxKind): string {
   return ts.SyntaxKind[kind];
