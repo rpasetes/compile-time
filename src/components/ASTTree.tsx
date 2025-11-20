@@ -49,12 +49,21 @@ export function ASTTree({ ast, onNodeClick, highlightedNode }: ASTTreeProps) {
       <h2 style={{ marginTop: 0, marginBottom: "0.75rem", fontSize: "1.2rem" }}>
         Abstract Syntax Tree
       </h2>
-      <div style={{ flex: 1, overflowY: "auto", overflowX: "auto" }}>
-        <TreeNode
-          node={ast}
-          onNodeClick={onNodeClick}
-          highlightedNode={highlightedNode}
-        />
+      <div
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          overflowX: "auto",
+          minWidth: 0, // Allow container to shrink
+        }}
+      >
+        <div style={{ minWidth: "max-content" }}>
+          <TreeNode
+            node={ast}
+            onNodeClick={onNodeClick}
+            highlightedNode={highlightedNode}
+          />
+        </div>
       </div>
     </div>
   );
