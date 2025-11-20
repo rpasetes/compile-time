@@ -21,6 +21,16 @@ export const examples: Example[] = [
 }`,
   },
   {
+    name: "Generic Arrow Function",
+    code: `// TSX parser quirk: arrow function generics need trailing comma
+// Without comma: <T> looks like JSX opening tag!
+// Try removing the comma to see the difference in the AST
+
+const identity = <T,>(x: T): T => x;
+
+const result = identity<string>("hello");`,
+  },
+  {
     name: "Type Definitions",
     code: `// Type aliases create structure for complex data
 interface User {
