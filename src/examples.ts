@@ -22,9 +22,14 @@ export const examples: Example[] = [
   },
   {
     name: "Generic Arrow Function",
-    code: `// TSX parser quirk: arrow function generics need trailing comma
-// Without comma: <T> looks like JSX opening tag!
-// Try removing the comma to see the difference in the AST
+    code: `/**
+ * TSX Parser Quirk: Generic Arrow Functions
+ *
+ * Arrow function generics need a trailing comma in TSX mode.
+ * Without it: <T> looks like a JSX opening tag!
+ *
+ * Try removing the comma to see how the AST changes.
+ */
 
 const identity = <T,>(x: T): T => x;
 
@@ -32,7 +37,13 @@ const result = identity<string>("hello");`,
   },
   {
     name: "Type Definitions",
-    code: `// Type aliases create structure for complex data
+    code: `/**
+ * Type Definitions
+ *
+ * Interfaces and type aliases create structure for complex data.
+ * Notice how the parser handles generic type parameters.
+ */
+
 interface User {
   id: number;
   name: string;
@@ -48,7 +59,13 @@ type ApiResponse<T> = {
   },
   {
     name: "API Handler",
-    code: `// Production pattern: async function with error handling
+    code: `/**
+ * API Handler with Error Handling
+ *
+ * Production pattern: async function with try/catch blocks.
+ * Notice the nested structure of the try/catch AST nodes.
+ */
+
 async function fetchUser(userId: string) {
   try {
     const response = await fetch(\`/api/users/\${userId}\`);
@@ -67,7 +84,13 @@ async function fetchUser(userId: string) {
   },
   {
     name: "Switch/Case Router",
-    code: `// State machine pattern with switch statement
+    code: `/**
+ * Switch Statement Router
+ *
+ * State machine pattern using switch/case for action handling.
+ * Each case creates a separate branch in the AST.
+ */
+
 function handleAction(action: string, payload: any) {
   switch (action) {
     case "LOGIN":
@@ -92,7 +115,13 @@ function handleAction(action: string, payload: any) {
   },
   {
     name: "FizzBuzz: Imperative",
-    code: `// Classic imperative style: deep nesting with if/else chain
+    code: `/**
+ * FizzBuzz: Imperative Style
+ *
+ * Classic approach with deep nesting through if/else chains.
+ * Notice the nested IfStatement and Block nodes in the tree.
+ */
+
 function fizzBuzz(n: number) {
   for (let i = 1; i <= n; i++) {
     if (i % 15 === 0) {
@@ -109,7 +138,13 @@ function fizzBuzz(n: number) {
   },
   {
     name: "FizzBuzz: Functional",
-    code: `// Functional style: expression-heavy with array methods
+    code: `/**
+ * FizzBuzz: Functional Style
+ *
+ * Expression-heavy approach using array methods and ternary operators.
+ * Compare this flatter structure to the imperative version's deep nesting.
+ */
+
 const fizzBuzz = (n: number) =>
   Array.from({ length: n }, (_, i) => i + 1)
     .map(i =>
@@ -122,7 +157,13 @@ const fizzBuzz = (n: number) =>
   },
   {
     name: "FizzBuzz: Composable",
-    code: `// Composable style: small functions for readability
+    code: `/**
+ * FizzBuzz: Composable Style
+ *
+ * Small, focused functions composed together for clarity.
+ * Notice how multiple FunctionDeclarations create separate subtrees.
+ */
+
 function isDivisibleBy(n: number) {
   return (x: number) => x % n === 0;
 }
@@ -145,7 +186,13 @@ function fizzBuzz(n: number) {
   },
   {
     name: "React Component",
-    code: `// JSX/TSX showing how UI code parses into function calls
+    code: `/**
+ * React Component with JSX
+ *
+ * JSX syntax creates JsxElement nodes in the AST.
+ * See how <button> becomes structured JsxOpeningElement/JsxClosingElement.
+ */
+
 interface ButtonProps {
   label: string;
   onClick: () => void;
