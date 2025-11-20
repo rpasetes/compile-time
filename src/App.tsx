@@ -4,6 +4,7 @@ import { CodeEditor } from "./components/CodeEditor";
 import { BlobVisualization } from "./components/BlobVisualization";
 import { ASTTree } from "./components/ASTTree";
 import { SegmentedControl } from "./components/SegmentedControl";
+import { examples } from "./examples";
 
 /**
  * Main App Component
@@ -32,11 +33,34 @@ import { SegmentedControl } from "./components/SegmentedControl";
  * This visualizer shows you what parsers see: the hidden structure beneath your code.
  */
 function App() {
-  const [sourceCode, setSourceCode] = useState("const x = 1 + 2");
+  const [sourceCode, setSourceCode] = useState(examples[0].code);
+  const [selectedExample, setSelectedExample] = useState<string>(examples[0].name);
   const [vizMode, setVizMode] = useState<"tree" | "rings">("tree");
 
   // Parse the code whenever it changes (always using TypeScript mode)
   const parseResult = parseCode(sourceCode);
+
+  // Handle example selection
+  const handleExampleChange = (exampleName: string) => {
+    const example = examples.find((ex) => ex.name === exampleName);
+    if (example) {
+      setSourceCode(example.code);
+      setSelectedExample(exampleName);
+    }
+  };
+
+  // Handle manual code changes - switch to "Custom" if user edits
+  const handleCodeChange = (newCode: string) => {
+    setSourceCode(newCode);
+
+    // Check if the new code matches any example
+    const matchingExample = examples.find((ex) => ex.code === newCode);
+    if (matchingExample) {
+      setSelectedExample(matchingExample.name);
+    } else if (selectedExample !== "Custom") {
+      setSelectedExample("Custom");
+    }
+  };
 
   return (
     <div
@@ -82,7 +106,46 @@ function App() {
             overflow: "hidden",
           }}
         >
-          <CodeEditor value={sourceCode} onChange={setSourceCode} />
+          {/* Example selector dropdown */}
+          <div style={{ marginBottom: "1rem" }}>
+            <label
+              htmlFor="example-select"
+              style={{
+                display: "block",
+                marginBottom: "0.5rem",
+                color: "#aaa",
+                fontSize: "0.9rem",
+              }}
+            >
+              Preset Examples:
+            </label>
+            <select
+              id="example-select"
+              value={selectedExample}
+              onChange={(e) => handleExampleChange(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "0.5rem",
+                backgroundColor: "#1a1a1a",
+                color: "#fff",
+                border: "1px solid #444",
+                borderRadius: "4px",
+                fontSize: "1rem",
+                cursor: "pointer",
+              }}
+            >
+              {examples.map((example) => (
+                <option key={example.name} value={example.name}>
+                  {example.name}
+                </option>
+              ))}
+              {selectedExample === "Custom" && (
+                <option value="Custom">Custom</option>
+              )}
+            </select>
+          </div>
+
+          <CodeEditor value={sourceCode} onChange={handleCodeChange} />
         </div>
 
         {/* Right half: Visualization */}

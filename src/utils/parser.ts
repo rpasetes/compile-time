@@ -60,14 +60,32 @@ export function parseCode(
      * 2. sourceCode: The actual code string to parse
      * 3. languageVersion: ES2020, ES2015, etc. (we use Latest for max features)
      * 4. setParentNodes: true = each node knows its parent (useful for traversal)
-     * 5. scriptKind: TS mode handles both JS and TS syntax
+     * 5. scriptKind: TSX mode handles JS, TS, AND JSX/TSX syntax
+     *
+     * PARSING INSIGHT #3a: Why ScriptKind.TSX?
+     * ==============================================
+     * TSX is the most permissive mode - it's a superset that handles:
+     * - Regular JavaScript ✅
+     * - TypeScript with types ✅
+     * - JSX/TSX syntax (React components) ✅
+     *
+     * Known quirk: Arrow functions with generic type parameters have ambiguous syntax:
+     *   const identity = <T>(x: T) => x;  // TSX mode thinks <T> is JSX opening tag!
+     *
+     * Workaround (required in TSX mode):
+     *   const identity = <T,>(x: T) => x;  // Trailing comma disambiguates
+     *   const identity = <T extends unknown>(x: T) => x;  // Or add constraint
+     *
+     * This is a known TypeScript design trade-off. We accept it because JSX support
+     * is more valuable than angle-bracket generic arrow functions (which are rare
+     * and have easy workarounds).
      */
     const ast = ts.createSourceFile(
-      'temp.ts',
+      'temp.tsx',
       sourceCode,
       ts.ScriptTarget.Latest,
       true, // setParentNodes
-      ts.ScriptKind.TS
+      ts.ScriptKind.TSX
     );
 
     /**
