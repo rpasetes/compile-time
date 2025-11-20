@@ -12,13 +12,21 @@ interface CodeEditorProps {
 /**
  * CodeEditor Component
  *
- * COMPILER INSIGHT: The Source Code Phase
- * ==========================================
- * This is where everything starts. Before parsing, before ASTs, before execution,
- * there's just text. Raw characters that humans write.
+ * PARSING INSIGHT: Before the Tree
+ * =================================
+ * Code starts as plain text—characters you type on a keyboard.
+ * To computers, "const x = 5" is just a string, no different from "hello world".
  *
- * The compiler's first job is to take this text and make sense of it.
- * That's what our parser does when we pass it to parseCode().
+ * The parser's job is to read this text and understand its structure:
+ * - What's a keyword vs a variable name?
+ * - What's being assigned to what?
+ * - How are expressions nested?
+ *
+ * When you press a key, this editor updates. When parseCode() runs,
+ * text transforms into a tree—the foundation for every tool you use.
+ *
+ * Even the syntax highlighting you see here? That's parsing too.
+ * CodeMirror tokenizes each line to know what colors to apply.
  */
 export function CodeEditor({ value, onChange }: CodeEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);

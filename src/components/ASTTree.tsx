@@ -10,21 +10,26 @@ interface ASTTreeProps {
 /**
  * ASTTree Component
  *
- * COMPILER INSIGHT: Tree Traversal
- * ==================================
+ * PARSING INSIGHT: Tree Traversal
+ * ================================
  * The AST is a recursive data structure - nodes contain nodes contain nodes.
  * To render it, we use recursive rendering: a component that renders itself
  * for each child.
  *
- * This mirrors how the compiler traverses the tree during compilation:
+ * This mirrors how developer tools traverse the tree:
  * - Visit a node
- * - Process it
+ * - Process/analyze it
  * - Recursively visit its children
  *
- * Tree traversal is fundamental to everything compilers do:
- * - Type checking: "visit every node, verify types match"
- * - Code generation: "visit every node, emit corresponding machine code"
- * - Optimization: "visit every node, look for patterns to improve"
+ * Tree traversal is the foundation of every tool:
+ *
+ * - Linters (ESLint): "Visit every VariableDeclaration, check if used"
+ * - Formatters (Prettier): "Visit every node, emit formatted text"
+ * - Refactoring: "Visit every Identifier, check if it matches the symbol to rename"
+ * - Transpilers (Babel): "Visit every ArrowFunction, transform to regular function"
+ * - Static analysis: "Visit every CallExpression, check for security issues"
+ *
+ * Every tool follows this pattern: Parse → Traverse → Transform/Analyze
  */
 export function ASTTree({ ast, onNodeClick, highlightedNode }: ASTTreeProps) {
   return (
