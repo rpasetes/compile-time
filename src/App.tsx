@@ -156,6 +156,7 @@ function App() {
             display: "flex",
             flexDirection: "column",
             position: "relative",
+            overflow: "hidden",
           }}
         >
           {/* Visualization Toggle - fixed to left */}
