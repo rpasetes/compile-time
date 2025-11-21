@@ -45,25 +45,14 @@ export function ASTNode({ node, onClick, isHighlighted }: ASTNodeProps) {
 
   return (
     <div
+      className={`ast-node ${isHighlighted ? 'highlighted' : ''}`}
       onClick={(e) => {
-        e.stopPropagation(); // Don't trigger parent clicks
+        e.stopPropagation();
         onClick?.(node);
-      }}
-      style={{
-        padding: '0.5rem 0.75rem',
-        backgroundColor: isHighlighted ? '#646cff' : '#2a2a2a',
-        border: '1px solid #444',
-        borderRadius: '4px',
-        cursor: onClick ? 'pointer' : 'default',
-        transition: 'background-color 0.2s',
-        fontSize: '13px',
-        fontFamily: 'monospace',
-        whiteSpace: 'nowrap', // Prevent text wrapping
-        display: 'inline-block', // Prevent block from stretching
       }}
     >
       <strong>{typeName}</strong>
-      {displayValue && <span style={{ color: '#aaa' }}>{displayValue}</span>}
+      {displayValue && <span className="ast-node-value">{displayValue}</span>}
     </div>
   );
 }
