@@ -108,28 +108,38 @@ bd dep add <blocked-id> <blocker-id> --type blocks
 #### Session End Protocol (Critical!)
 
 ```bash
-# 1. Close all finished work
+# 1. Close all finished work ON THE FEATURE BRANCH
 bd close <ids> --reason "..."
 
-# 2. File remaining TODOs as issues
-bd create "Remaining work description" -t task -p N
-
-# 3. Force flush everything (bypasses 30s debounce)
-bd sync
-
-# 4. Commit Beads state
+# 2. Export and commit issue state ON THE BRANCH
+bd export
 git add .beads/issues.jsonl
-git commit -m "Update issue tracker"
+git commit -m "Update issue tracker - close <issue-ids>"
 
-# 5. Push
+# 3. Push branch (includes code + issue closure)
 git push
+
+# 4. Create PR (includes both work and issue state)
+
+# 5. After PR merge, file remaining work as new issues
+bd create "Remaining work description" -t task -p N
 ```
 
-**Why this matters:** Without `bd sync` at session end, changes stay in the database only. The sync protocol ensures:
-- Exports DB → JSONL (source of truth for git)
-- Commits and pulls latest changes
-- Imports remote updates → DB
-- Pushes to remote
+**Philosophy: Close Issues on Feature Branches**
+
+Close issues **on the feature branch** where work happens, not after merge. This ensures:
+- **Atomic history**: PRs contain both code changes AND issue closure
+- **Real-time state**: Issue list always reflects actual work state, no lag
+- **Complete knowledge graph**: Git history shows explicit connection between commits and issues
+- **Reduced cognitive load**: "Close when done" is simpler than "close after merge"
+
+The "Update issue tracker" commit in PRs is **metadata worth preserving** - it marks when work was completed.
+
+**Why this matters:**
+- Without closing on branch, issue tracker lags behind reality
+- Future sessions see completed work still marked "open" (confusing)
+- Dependency graphs break if issues stay open after fixes merge
+- bd sync at session end exports DB → JSONL (source of truth for git)
 
 #### Beads Infrastructure Details
 
