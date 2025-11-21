@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { parseCode } from "./utils/parser";
 import { CodeEditor } from "./components/CodeEditor";
-import { BlobVisualization } from "./components/BlobVisualization";
+import { RingsVisualization } from "./components/RingsVisualization";
 import { ASTTree } from "./components/ASTTree";
 import { SegmentedControl } from "./components/SegmentedControl";
+import { CustomSelect } from "./components/CustomSelect";
 import { examples } from "./examples";
 
 /**
@@ -34,7 +35,9 @@ import { examples } from "./examples";
  */
 function App() {
   const [sourceCode, setSourceCode] = useState(examples[0].code);
-  const [selectedExample, setSelectedExample] = useState<string>(examples[0].name);
+  const [selectedExample, setSelectedExample] = useState<string>(
+    examples[0].name,
+  );
   const [vizMode, setVizMode] = useState<"tree" | "rings">("tree");
 
   // Parse the code whenever it changes (always using TypeScript mode)
@@ -64,86 +67,43 @@ function App() {
 
   return (
     <div
-      style={{
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-      }}
+      className="paper-layer"
+      style={{ height: "100vh", display: "flex", flexDirection: "column" }}
     >
       {/* Header */}
-      <div
-        style={{
-          textAlign: "center",
-          padding: "2rem",
-          borderBottom: "1px solid #444",
-        }}
-      >
-        <h1 style={{ fontSize: "2.5rem", marginBottom: "0.5rem", margin: 0 }}>
-          Arbor Parser
-        </h1>
-        <p
-          style={{ color: "#aaa", fontSize: "1.1rem", margin: "0.5rem 0 0 0" }}
-        >
+      <header className="app-header">
+        <h1 className="app-title">Arbor Parser</h1>
+        <p className="app-subtitle">
           See how parsers read your code. Every syntax tree, visualized.
         </p>
-      </div>
+      </header>
 
       {/* Split layout: Editor left, Tree right */}
-      <div
-        style={{
-          display: "flex",
-          flex: 1,
-          overflow: "hidden",
-        }}
-      >
+      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
         {/* Left half: Code Editor */}
         <div
+          className="paper-layer"
           style={{
             width: "50%",
-            padding: "1rem",
+            padding: "var(--space-lg)",
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
+            borderRight: "2px solid var(--paper-stained)",
           }}
         >
           {/* Example selector dropdown */}
-          <div style={{ marginBottom: "1rem" }}>
-            <label
-              htmlFor="example-select"
-              style={{
-                display: "block",
-                marginBottom: "0.5rem",
-                color: "#aaa",
-                fontSize: "0.9rem",
-              }}
-            >
-              Preset Examples:
-            </label>
-            <select
-              id="example-select"
-              value={selectedExample}
-              onChange={(e) => handleExampleChange(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                backgroundColor: "#1a1a1a",
-                color: "#fff",
-                border: "1px solid #444",
-                borderRadius: "4px",
-                fontSize: "1rem",
-                cursor: "pointer",
-              }}
-            >
-              {examples.map((example) => (
-                <option key={example.name} value={example.name}>
-                  {example.name}
-                </option>
-              ))}
-              {selectedExample === "Custom" && (
-                <option value="Custom">Custom</option>
-              )}
-            </select>
-          </div>
+          <CustomSelect
+            label="Preset Examples:"
+            value={selectedExample}
+            onChange={handleExampleChange}
+            options={[
+              ...examples.map((ex) => ({ value: ex.name, label: ex.name })),
+              ...(selectedExample === "Custom"
+                ? [{ value: "Custom", label: "Custom" }]
+                : []),
+            ]}
+          />
 
           <CodeEditor value={sourceCode} onChange={handleCodeChange} />
         </div>
@@ -152,7 +112,7 @@ function App() {
         <div
           style={{
             width: "50%",
-            padding: "1rem",
+            padding: "var(--space-lg)",
             display: "flex",
             flexDirection: "column",
             position: "relative",
@@ -162,7 +122,7 @@ function App() {
           {/* Visualization Toggle - fixed to left */}
           <div
             style={{
-              marginBottom: "1rem",
+              marginBottom: "var(--space-md)",
               alignSelf: "flex-start",
             }}
           >
@@ -179,21 +139,42 @@ function App() {
               vizMode === "tree" ? (
                 <ASTTree ast={parseResult.ast} />
               ) : (
-                <BlobVisualization ast={parseResult.ast} />
+                <RingsVisualization ast={parseResult.ast} />
               )
             ) : (
               <div
+                className="paper-elevated"
                 style={{
-                  padding: "1rem",
-                  backgroundColor: "#3a1a1a",
-                  border: "1px solid #844",
+                  padding: "var(--space-md)",
+                  border: "2px solid var(--vermillion)",
                   borderRadius: "4px",
-                  color: "#faa",
                 }}
               >
-                <strong>Parse Error:</strong> {parseResult.error}
+                <strong
+                  style={{
+                    color: "var(--vermillion)",
+                    fontFamily: "var(--font-mono)",
+                  }}
+                >
+                  Parse Error:
+                </strong>{" "}
+                <span
+                  style={{
+                    color: "var(--ink-fresh)",
+                    fontFamily: "var(--font-mono)",
+                  }}
+                >
+                  {parseResult.error}
+                </span>
                 {parseResult.line && parseResult.column && (
-                  <div style={{ marginTop: "0.5rem", fontSize: "0.9rem" }}>
+                  <div
+                    style={{
+                      marginTop: "var(--space-sm)",
+                      fontSize: "0.875rem",
+                      color: "var(--ink-faded)",
+                      fontFamily: "var(--font-mono)",
+                    }}
+                  >
                     Line {parseResult.line}, Column {parseResult.column}
                   </div>
                 )}
