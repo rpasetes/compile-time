@@ -58,6 +58,8 @@ export function ASTNode({ node, onClick, isHighlighted }: ASTNodeProps) {
         transition: 'background-color 0.2s',
         fontSize: '13px',
         fontFamily: 'monospace',
+        whiteSpace: 'nowrap', // Prevent text wrapping
+        display: 'inline-block', // Prevent block from stretching
       }}
     >
       <strong>{typeName}</strong>
