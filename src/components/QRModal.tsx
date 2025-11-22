@@ -79,6 +79,30 @@ export function QRModal({ isOpen, onClose }: QRModalProps) {
             coordinates to the digital specimen's natural environment. Point
             your observation device to translate.
           </p>
+          <div className="qr-contact-info">
+            <p className="qr-collector">
+              <strong>Collected by:</strong> Russell Pasetes
+            </p>
+            <div className="qr-links">
+              <a
+                href="https://www.linkedin.com/in/russell-pasetes-065a11160/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="qr-link"
+              >
+                LinkedIn
+              </a>
+              <span className="qr-separator">•</span>
+              <a
+                href="https://x.com/rslantonie"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="qr-link"
+              >
+                Twitter
+              </a>
+            </div>
+          </div>
         </div>
 
         {/* Close instruction */}
