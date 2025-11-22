@@ -1,8 +1,9 @@
 import { useState } from "react";
+import * as ts from "typescript";
 import { parseCode } from "./utils/parser";
 import { CodeEditor } from "./components/CodeEditor";
 import { RingsVisualization } from "./components/RingsVisualization";
-import { ASTTree } from "./components/ASTTree";
+import { ASTNodes } from "./components/ASTNodes";
 import { SegmentedControl } from "./components/SegmentedControl";
 import { CustomSelect } from "./components/CustomSelect";
 import { examples } from "./examples";
@@ -38,7 +39,10 @@ function App() {
   const [selectedExample, setSelectedExample] = useState<string>(
     examples[0].name,
   );
-  const [vizMode, setVizMode] = useState<"tree" | "rings">("tree");
+  const [vizMode, setVizMode] = useState<"nodes" | "rings">("nodes");
+
+  // Visualizer → Editor highlighting state
+  const [hoveredNode, setHoveredNode] = useState<ts.Node | null>(null); // Hover node → highlight code
 
   // Parse the code whenever it changes (always using TypeScript mode)
   const parseResult = parseCode(sourceCode);
@@ -105,7 +109,11 @@ function App() {
             ]}
           />
 
-          <CodeEditor value={sourceCode} onChange={handleCodeChange} />
+          <CodeEditor
+            value={sourceCode}
+            onChange={handleCodeChange}
+            hoveredNode={hoveredNode}
+          />
         </div>
 
         {/* Right half: Visualization */}
@@ -127,17 +135,20 @@ function App() {
             }}
           >
             <SegmentedControl
-              options={["Tree", "Rings"]}
+              options={["Nodes", "Rings"]}
               selected={vizMode}
-              onChange={(mode) => setVizMode(mode as "tree" | "rings")}
+              onChange={(mode) => setVizMode(mode as "nodes" | "rings")}
             />
           </div>
 
           {/* Viz container */}
           <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
             {parseResult.success ? (
-              vizMode === "tree" ? (
-                <ASTTree ast={parseResult.ast} />
+              vizMode === "nodes" ? (
+                <ASTNodes
+                  ast={parseResult.ast}
+                  onNodeHover={setHoveredNode}
+                />
               ) : (
                 <RingsVisualization ast={parseResult.ast} />
               )
