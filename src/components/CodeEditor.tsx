@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import * as ts from 'typescript';
 import { EditorView, basicSetup } from 'codemirror';
 import { EditorState } from '@codemirror/state';
 import { javascript } from '@codemirror/lang-javascript';
@@ -7,6 +8,7 @@ import { fieldGuide } from '../theme/fieldGuideTheme';
 interface CodeEditorProps {
   value: string;
   onChange: (value: string) => void;
+  hoveredNode?: ts.Node | null; // From hovering nodes → highlights code
 }
 
 /**
@@ -28,7 +30,7 @@ interface CodeEditorProps {
  * Even the syntax highlighting you see here? That's parsing too.
  * CodeMirror tokenizes each line to know what colors to apply.
  */
-export function CodeEditor({ value, onChange }: CodeEditorProps) {
+export function CodeEditor({ value, onChange, hoveredNode }: CodeEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
 
@@ -42,6 +44,7 @@ export function CodeEditor({ value, onChange }: CodeEditorProps) {
         javascript({ typescript: true }), // TypeScript mode handles both JS and TS
         fieldGuide, // Field guide theme
         EditorView.updateListener.of((update) => {
+          // Handle document changes
           if (update.docChanged) {
             const newValue = update.state.doc.toString();
             onChange(newValue);
@@ -81,6 +84,16 @@ export function CodeEditor({ value, onChange }: CodeEditorProps) {
       }
     }
   }, [value]);
+
+  // Highlight hovered node (visual only, doesn't move cursor)
+  // When hovering a node, just show which code it corresponds to
+  useEffect(() => {
+    if (!viewRef.current || !hoveredNode) return;
+
+    viewRef.current.dispatch({
+      selection: { anchor: hoveredNode.pos, head: hoveredNode.end },
+    });
+  }, [hoveredNode]);
 
   return (
     <div style={{

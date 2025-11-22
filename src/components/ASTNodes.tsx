@@ -3,8 +3,7 @@ import { ASTNode } from "./ASTNode";
 
 interface ASTNodesProps {
   ast: ts.SourceFile;
-  onNodeClick?: (node: ts.Node) => void;
-  highlightedNode?: ts.Node;
+  onNodeHover?: (node: ts.Node | null) => void;
 }
 
 /**
@@ -31,7 +30,7 @@ interface ASTNodesProps {
  *
  * Every tool follows this pattern: Parse → Traverse → Transform/Analyze
  */
-export function ASTNodes({ ast, onNodeClick, highlightedNode }: ASTNodesProps) {
+export function ASTNodes({ ast, onNodeHover }: ASTNodesProps) {
   return (
     <div className="tree-container" style={{
       width: "100%",
@@ -43,8 +42,7 @@ export function ASTNodes({ ast, onNodeClick, highlightedNode }: ASTNodesProps) {
       <div style={{ minWidth: "max-content" }}>
         <TreeNode
           node={ast}
-          onNodeClick={onNodeClick}
-          highlightedNode={highlightedNode}
+          onNodeHover={onNodeHover}
         />
       </div>
     </div>
@@ -53,30 +51,26 @@ export function ASTNodes({ ast, onNodeClick, highlightedNode }: ASTNodesProps) {
 
 interface TreeNodeProps {
   node: ts.Node;
-  onNodeClick?: (node: ts.Node) => void;
-  highlightedNode?: ts.Node;
+  onNodeHover?: (node: ts.Node | null) => void;
 }
 
 /**
  * Recursive TreeNode component
  * Each node renders itself and all its children
  */
-function TreeNode({ node, onNodeClick, highlightedNode }: TreeNodeProps) {
+function TreeNode({ node, onNodeHover }: TreeNodeProps) {
   // Collect children
   const children: ts.Node[] = [];
   ts.forEachChild(node, (child) => {
     children.push(child);
   });
 
-  const isHighlighted = node === highlightedNode;
-
   return (
     <div className="tree-node" style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
       {/* Render this node */}
       <ASTNode
         node={node}
-        onClick={onNodeClick}
-        isHighlighted={isHighlighted}
+        onHover={onNodeHover}
       />
 
       {/* Recursively render children with indentation */}
@@ -95,8 +89,7 @@ function TreeNode({ node, onNodeClick, highlightedNode }: TreeNodeProps) {
             <TreeNode
               key={`${child.kind}-${child.pos}-${index}`}
               node={child}
-              onNodeClick={onNodeClick}
-              highlightedNode={highlightedNode}
+              onNodeHover={onNodeHover}
             />
           ))}
         </div>

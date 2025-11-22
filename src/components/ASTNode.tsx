@@ -3,8 +3,7 @@ import { getNodeTypeName } from '../utils/parser';
 
 interface ASTNodeProps {
   node: ts.Node;
-  onClick?: (node: ts.Node) => void;
-  isHighlighted?: boolean;
+  onHover?: (node: ts.Node | null) => void;
 }
 
 /**
@@ -28,7 +27,7 @@ interface ASTNodeProps {
  * codebase without accidentally changing strings that contain "x" or comments
  * that mention "x". The AST knows which "x" is the variable you care about.
  */
-export function ASTNode({ node, onClick, isHighlighted }: ASTNodeProps) {
+export function ASTNode({ node, onHover }: ASTNodeProps) {
   const typeName = getNodeTypeName(node.kind);
 
   // Extract interesting properties to display
@@ -45,11 +44,9 @@ export function ASTNode({ node, onClick, isHighlighted }: ASTNodeProps) {
 
   return (
     <div
-      className={`ast-node ${isHighlighted ? 'highlighted' : ''}`}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick?.(node);
-      }}
+      className="ast-node"
+      onMouseEnter={() => onHover?.(node)}
+      onMouseLeave={() => onHover?.(null)}
     >
       <strong>{typeName}</strong>
       {displayValue && <span className="ast-node-value">{displayValue}</span>}
