@@ -86,13 +86,32 @@ export function CodeEditor({ value, onChange, hoveredNode }: CodeEditorProps) {
   }, [value]);
 
   // Highlight hovered node (visual only, doesn't move cursor)
-  // When hovering a node, just show which code it corresponds to
+  // When hovering a node, show which code it corresponds to
+  // When leaving a node (hoveredNode becomes null), clear the selection
   useEffect(() => {
-    if (!viewRef.current || !hoveredNode) return;
+    if (!viewRef.current) return;
 
-    viewRef.current.dispatch({
-      selection: { anchor: hoveredNode.pos, head: hoveredNode.end },
-    });
+    if (hoveredNode) {
+      const docLength = viewRef.current.state.doc.length;
+
+      // Validate bounds to handle edge cases where document is modified while hovering
+      if (hoveredNode.pos < 0 || hoveredNode.end > docLength) return;
+
+      // Trim leading whitespace from the highlight
+      const text = viewRef.current.state.doc.sliceString(hoveredNode.pos, hoveredNode.end);
+      const leadingWhitespace = text.match(/^\s*/)?.[0].length || 0;
+      const trimmedStart = hoveredNode.pos + leadingWhitespace;
+
+      viewRef.current.dispatch({
+        selection: { anchor: trimmedStart, head: hoveredNode.end },
+      });
+    } else {
+      // Clear selection when no node is hovered
+      const currentPos = viewRef.current.state.selection.main.head;
+      viewRef.current.dispatch({
+        selection: { anchor: currentPos, head: currentPos },
+      });
+    }
   }, [hoveredNode]);
 
   return (
