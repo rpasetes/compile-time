@@ -377,33 +377,60 @@ The tool should make these insights clear through interaction:
 - Tree/Rings segmented control toggle
 - Real-time parsing as you type
 - Educational comments throughout codebase
+- Field guide naturalist aesthetic (aged paper, sepia ink, botanical design system)
 
-📝 **Recent Rebrand:**
-- Changed from "Compile Time" → "Arbor Parser"
-- Updated all references (package.json, HTML title, App header)
-- Changed all code comments from "COMPILER INSIGHT" to "PARSING INSIGHT"
-- Enhanced comments with detailed parsing explanations
-- Created comprehensive research doc: `docs/NOV20-WHY-PARSING-MATTERS.md`
-- Branch: `refactor/rebrand-arbor-parser` (pending merge to main)
+📝 **Recent Work:**
+- **Field Guide Aesthetic** (PR merged Nov 21, 2025)
+  - Complete naturalist design system inspired by 19th-century scientific illustration
+  - Custom CSS theme, CodeMirror theme, botanical color palette
+  - Documentation: `docs/NOV21-NATURALIST-DESIGN.md`
+- **Rebrand to Arbor Parser** (Oct-Nov 2025)
+  - Changed from "Compile Time" with comprehensive parsing research
+  - Documentation: `docs/NOV20-WHY-PARSING-MATTERS.md`
 
 🎯 **What's Working:**
 - TypeScript parser integration (`ts.createSourceFile`)
 - AST traversal with `ts.forEachChild`
 - Node type display using `ts.SyntaxKind` enum
 - Literal/identifier value display
-- Fixed viewport sizing (no more overflow issues)
+- Fixed viewport sizing and scrolling patterns
+- Naturalist visual design across all components
 
-## Potential Future Work (Not Prioritized)
+## Active Work: Interactive Visualization Suite Epic
 
-These are ideas mentioned but NOT current priorities:
-- Bidirectional highlighting (click node → highlight code, click code → highlight node)
-- Preset example snippets
-- Better error recovery UI
-- Search/filter nodes in tree
-- Export AST as JSON
-- Node detail panel showing all properties
+**Epic ID:** `arbparse-9xu` (Nov 21, 2025)
+**Status:** Ready to begin PR 1
+**Documentation:** `docs/NOV21-INTERACTIVE-VIZ-EPIC.md`
 
-**Do not implement these unless explicitly requested.**
+**Epic Overview:**
+Multi-PR implementation of bidirectional highlighting, zoom interactions, and radial tree visualization:
+
+1. **PR 1: Bidirectional Highlighting** (5 tasks, P1)
+   - Rename "Tree" → "Nodes" for clarity
+   - Add shared selectedNode state
+   - Implement Node → Code and Code → Node highlighting
+   - Wire up click handlers
+
+2. **PR 2: Rings Zoom** (4 tasks, P2)
+   - Click-to-zoom with D3 transitions
+   - Smart label display (type + literal values)
+   - Breadcrumb navigation
+
+3. **PR 3: Radial Tidy Tree** (5 tasks, P2)
+   - New visualization using D3 Reingold-Tilford algorithm
+   - Smart label rotation for readability
+   - Integrated highlighting
+   - Zoom/pan behavior
+
+**Beads Workflow:**
+```bash
+bd ready --json                          # See available work
+bd update arbparse-9xu.1 --status in_progress  # Start task
+bd close arbparse-9xu.1 --reason "..."   # Complete task
+bd epic status arbparse-9xu              # View progress
+```
+
+See `docs/NOV21-INTERACTIVE-VIZ-EPIC.md` for complete technical details, implementation plans, and lessons learned from epic planning.
 
 ## Resources
 - [TypeScript Compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API)
