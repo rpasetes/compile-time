@@ -16,46 +16,17 @@ export interface Example {
 export const examples: Example[] = [
   {
     name: "Hello World",
-    code: `function greet() {
+    code: `/**
+ * Hello World - Your First AST
+ *
+ * Hover over any node in the tree to see its code highlighted!
+ * Try switching between Nodes and Rings views to explore different
+ * ways of visualizing the same structure.
+ */
+
+function greet() {
   console.log("Hello, World!");
 }`,
-  },
-  {
-    name: "Generic Arrow Function",
-    code: `/**
- * TSX Parser Quirk: Generic Arrow Functions
- *
- * Arrow function generics need a trailing comma in TSX mode.
- * Without it: <T> looks like a JSX opening tag!
- *
- * Try removing the comma to see how the AST changes.
- */
-
-const identity = <T,>(x: T): T => x;
-
-const result = identity<string>("hello");`,
-  },
-  {
-    name: "Type Definitions",
-    code: `/**
- * Type Definitions
- *
- * Interfaces and type aliases create structure for complex data.
- * Notice how the parser handles generic type parameters.
- */
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  roles: string[];
-}
-
-type ApiResponse<T> = {
-  data: T;
-  status: number;
-  error?: string;
-};`,
   },
   {
     name: "API Handler",
@@ -183,6 +154,43 @@ function fizzBuzz(n: number) {
     console.log(fizzBuzzValue(i));
   }
 }`,
+  },
+  {
+    name: "Generic Arrow Function",
+    code: `/**
+ * TSX Parser Quirk: Generic Arrow Functions
+ *
+ * Arrow function generics need a trailing comma in TSX mode.
+ * Without it: <T> looks like a JSX opening tag!
+ *
+ * Try removing the comma to see how the AST changes.
+ */
+
+const identity = <T,>(x: T): T => x;
+
+const result = identity<string>("hello");`,
+  },
+  {
+    name: "Type Definitions",
+    code: `/**
+ * Type Definitions
+ *
+ * Interfaces and type aliases create structure for complex data.
+ * Notice how the parser handles generic type parameters.
+ */
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  roles: string[];
+}
+
+type ApiResponse<T> = {
+  data: T;
+  status: number;
+  error?: string;
+};`,
   },
   {
     name: "React Component",

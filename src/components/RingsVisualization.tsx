@@ -23,7 +23,7 @@ export function RingsVisualization({ ast }: RingsVisualizationProps) {
     // Set up dimensions
     const width = 800;
     const height = 600;
-    const margin = 20;
+    const margin = 50; // Increased margin to prevent label clipping
 
     // Create D3 hierarchy
     const root = d3.hierarchy<HierarchyNode>(hierarchyData);
@@ -105,8 +105,8 @@ export function RingsVisualization({ ast }: RingsVisualizationProps) {
       const label = d.data.name;
       const fontSize = getFontSize(d.depth);
 
-      // Only show label if circle is large enough
-      if (d.r! > 30) {
+      // Only show label for top-level ring (depth === 0) and if circle is large enough
+      if (d.depth === 0 && d.r! > 30) {
         // Create a circular path for the text to follow
         const pathId = `circle-path-${i}`;
 
