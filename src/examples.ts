@@ -29,43 +29,6 @@ function greet() {
 }`,
   },
   {
-    name: "Generic Arrow Function",
-    code: `/**
- * TSX Parser Quirk: Generic Arrow Functions
- *
- * Arrow function generics need a trailing comma in TSX mode.
- * Without it: <T> looks like a JSX opening tag!
- *
- * Try removing the comma to see how the AST changes.
- */
-
-const identity = <T,>(x: T): T => x;
-
-const result = identity<string>("hello");`,
-  },
-  {
-    name: "Type Definitions",
-    code: `/**
- * Type Definitions
- *
- * Interfaces and type aliases create structure for complex data.
- * Notice how the parser handles generic type parameters.
- */
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  roles: string[];
-}
-
-type ApiResponse<T> = {
-  data: T;
-  status: number;
-  error?: string;
-};`,
-  },
-  {
     name: "API Handler",
     code: `/**
  * API Handler with Error Handling
@@ -191,6 +154,43 @@ function fizzBuzz(n: number) {
     console.log(fizzBuzzValue(i));
   }
 }`,
+  },
+  {
+    name: "Generic Arrow Function",
+    code: `/**
+ * TSX Parser Quirk: Generic Arrow Functions
+ *
+ * Arrow function generics need a trailing comma in TSX mode.
+ * Without it: <T> looks like a JSX opening tag!
+ *
+ * Try removing the comma to see how the AST changes.
+ */
+
+const identity = <T,>(x: T): T => x;
+
+const result = identity<string>("hello");`,
+  },
+  {
+    name: "Type Definitions",
+    code: `/**
+ * Type Definitions
+ *
+ * Interfaces and type aliases create structure for complex data.
+ * Notice how the parser handles generic type parameters.
+ */
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  roles: string[];
+}
+
+type ApiResponse<T> = {
+  data: T;
+  status: number;
+  error?: string;
+};`,
   },
   {
     name: "React Component",
